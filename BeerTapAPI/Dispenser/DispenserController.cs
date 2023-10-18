@@ -28,7 +28,10 @@ public class DispenserController : ControllerBase
     [HttpPut("{id}")]
     public IActionResult SetStatus([FromRoute] Guid id, [FromBody] SetDispenserStatusRequest data)
     {
-        return NotFound();
+        var result = DispenserService.SetStatus(id, data);
+        if (result.IsSuccess) return Accepted(result.Value);
+        if (result.Error is Errors.Conflict c) return Conflict(c.Message);
+        throw result.Error;
     }
 
     [HttpGet("{id}/spending")]

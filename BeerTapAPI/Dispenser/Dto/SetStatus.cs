@@ -7,13 +7,13 @@ public enum DispenserStatus
 }
 
 public record SetDispenserStatusRequest(
-    DispenserStatus status,
-    DateTime? updated_at
+    DispenserStatus Status,
+    DateTime? UpdatedAt
 )
 { }
 
 public record SetDispenserStatusResponse(
-    DispenserStatus status,
-    DateTime updated_at
+    DispenserStatus Status,
+    DateTime UpdatedAt
 )
 { }

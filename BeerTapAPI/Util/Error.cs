@@ -6,3 +6,8 @@ public class Error : Exception
     public Error(string? msg = null, Exception? inner = null) : base(msg, inner) { }
     public static Error From(Exception e) => new Error(e.Message, e);
 }
+
+public class Conflict : Error
+{
+    public Conflict(string? msg) : base(msg) { }
+}
