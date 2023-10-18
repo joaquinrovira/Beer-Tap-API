@@ -1,3 +1,5 @@
+namespace BeerTapAPI.Errors;
+
 public class Error : Exception
 {
     public readonly string ErrorStackTrace = Environment.StackTrace;

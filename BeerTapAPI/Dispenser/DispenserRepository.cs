@@ -1,5 +1,5 @@
 using BeerTapAPI.Entities;
-using BeerTapAPI.Util;
+using BeerTapAPI.Errors;
 using CSharpFunctionalExtensions;
 
 public interface IDispenserRepository
@@ -15,9 +15,8 @@ public record class MemoryDispenserRepository() : IDispenserRepository
 
     public UnitResult<Error> Register(Dispenser d)
     {
-        var dispenser = WithId.From(d);
-        Dispensers.Add(dispenser.Id, dispenser.Item);
-        Events.Add(dispenser.Id, new(DispenserEventComparer.Default));
-        return UnitResult.Success<Error>();
+        Dispensers.Add(d.Id, d);
+        Events.Add(d.Id, new(DispenserEventComparer.Default));
+        return Result.Success<Dispenser, Error>(d);
     }
 }

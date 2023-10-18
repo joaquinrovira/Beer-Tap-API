@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BeerTapAPI.Controllers;
 
 [Route("dispenser")]
+[ApiController]
 public class DispenserController : ControllerBase
 {
 
@@ -16,14 +17,16 @@ public class DispenserController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult Register([FromBody] RegisterDispenserRequest data)
+    public IActionResult Register([FromBody] RegisterDispenserRawRequest data)
     {
-        DispenserService.Register(data).SuccessOrThrow();
-        return Ok();
+        // NOTE: Model validation checked implicitly by [ApiController]
+        // https://learn.microsoft.com/en-us/aspnet/core/web-api/?view=aspnetcore-7.0#automatic-http-400-responses
+        var dispenser = DispenserService.Register(data.Checked()).GetOrThrow();
+        return Ok(dispenser);
     }
 
     [HttpPut("{id}")]
-    public IActionResult SetStatus([FromBody] SetDispenserStatusRequest data)
+    public IActionResult SetStatus([FromRoute] Guid id, [FromBody] SetDispenserStatusRequest data)
     {
         return NotFound();
     }

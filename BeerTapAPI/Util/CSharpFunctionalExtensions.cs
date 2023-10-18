@@ -1,3 +1,5 @@
+using BeerTapAPI.Errors;
+
 namespace CSharpFunctionalExtensions;
 
 public static class MoreCSharpFunctionalExtensions
