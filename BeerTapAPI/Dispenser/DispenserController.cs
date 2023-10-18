@@ -6,10 +6,19 @@ namespace BeerTapAPI.Controllers;
 [Route("dispenser")]
 public class DispenserController : ControllerBase
 {
+
+    DispenserService DispenserService;
+
+    public DispenserController(DispenserService dispenserService)
+    {
+        DispenserService = dispenserService;
+    }
+
     [HttpPost]
     public IActionResult Register([FromBody] RegisterDispenserRequest data)
     {
-        return NotFound();
+        DispenserService.Register(data);
+        return Ok();
     }
 
     [HttpPut("{id}")]

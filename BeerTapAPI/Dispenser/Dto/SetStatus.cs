@@ -1,6 +1,5 @@
 namespace BeerTapAPI.Dtos;
 
-// NOTE: declared here for now, will probably move later
 public enum DispenserStatus
 {
     open,
