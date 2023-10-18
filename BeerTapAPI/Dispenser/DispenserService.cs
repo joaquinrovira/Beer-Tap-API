@@ -1,14 +1,15 @@
 
 using BeerTapAPI.Dtos;
 using BeerTapAPI.Entities;
+using CSharpFunctionalExtensions;
 
 [Service]
 public record class DispenserService(IDispenserRepository DispenserRepository)
 {
 
-    public void Register(RegisterDispenserRequest request)
+    public UnitResult<Error> Register(RegisterDispenserRequest request)
     {
         var dispenser = new Dispenser(request.FlowVolume);
-        DispenserRepository.Register(dispenser);
+        return DispenserRepository.Register(dispenser);
     }
 }

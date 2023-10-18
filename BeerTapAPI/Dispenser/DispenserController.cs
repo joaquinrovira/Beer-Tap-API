@@ -1,4 +1,5 @@
 using BeerTapAPI.Dtos;
+using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BeerTapAPI.Controllers;
@@ -17,7 +18,7 @@ public class DispenserController : ControllerBase
     [HttpPost]
     public IActionResult Register([FromBody] RegisterDispenserRequest data)
     {
-        DispenserService.Register(data);
+        DispenserService.Register(data).SuccessOrThrow();
         return Ok();
     }
 
