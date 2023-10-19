@@ -8,7 +8,7 @@ public interface IDispenserRepository
     UnitResult<Error> Register(Dispenser d);
     UnitResult<Error> PublishEvent(Guid id, IDispenserEvent e);
     Result<Maybe<IDispenserEvent>, Error> LastEvent(Guid id);
-    Result<IEnumerable<IDispenserEvent>, Error> UsageReportByDate(Guid id);
+    Result<IEnumerable<IDispenserEvent>, Error> DispenserEvents(Guid id);
 }
 
 [Service]
@@ -51,7 +51,7 @@ public record class MemoryDispenserRepository() : IDispenserRepository
         });
     }
 
-    public Result<IEnumerable<IDispenserEvent>, Error> UsageReportByDate(Guid id)
+    public Result<IEnumerable<IDispenserEvent>, Error> DispenserEvents(Guid id)
     {
         return Get(id).Map(d => Events[d.Id].AsEnumerable());
     }

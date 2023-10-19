@@ -62,7 +62,7 @@ public record class DispenserService(IDispenserRepository DispenserRepository)
             .Get(id)
             .Bind(d =>
                 DispenserRepository
-                .UsageReportByDate(id)
+                .DispenserEvents(id)
                 .Map(e => new { Dispenser = d, Events = e })
             )
             .Map(v => Usages(v.Dispenser, v.Events));
