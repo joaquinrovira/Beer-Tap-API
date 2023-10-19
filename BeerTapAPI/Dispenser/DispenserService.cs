@@ -99,7 +99,7 @@ public class UsageReportItem
     Dispenser Dispenser;
     public DateTime OpenedAt { get; }
     public DateTime ClosedAt => MaybeClosedAt.GetValueOrDefault(ImplicitClosedAt);
-    public decimal FlowVolume => (decimal)(OpenedAt - ClosedAt).TotalSeconds * (decimal)Dispenser.FlowVolume;
+    public decimal FlowVolume => (decimal)(ClosedAt - OpenedAt).TotalSeconds * (decimal)Dispenser.FlowVolume;
     public decimal TotalSpent => FlowVolume * DispenserService.PRICE;
     Maybe<DateTime> MaybeClosedAt = Maybe.None;
     DateTime ImplicitClosedAt = DateTime.Now;
@@ -114,5 +114,5 @@ public class UsageReportItem
         MaybeClosedAt = t;
     }
 
-    public DispenserUsageReportResponseItem Commit() => new(OpenedAt, ClosedAt, FlowVolume, TotalSpent);
+    public DispenserUsageReportResponseItem Commit() => new(OpenedAt, MaybeClosedAt.AsNullable(), FlowVolume, TotalSpent);
 }
