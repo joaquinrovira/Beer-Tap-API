@@ -45,12 +45,12 @@ public record class DispenserService(IDispenserRepository DispenserRepository)
         });
     }
 
-    public UnitResult<Error> OpenTap(Guid id, DateTime at)
+    private UnitResult<Error> OpenTap(Guid id, DateTime at)
     {
         var evt = new OpenTapEvent(id, at);
         return DispenserRepository.PublishEvent(id, evt);
     }
-    public UnitResult<Error> CloseTap(Guid id, DateTime at)
+    private UnitResult<Error> CloseTap(Guid id, DateTime at)
     {
         var evt = new CloseTapEvent(id, at);
         return DispenserRepository.PublishEvent(id, evt);
