@@ -36,13 +36,13 @@ public record class DispenserService(IDispenserRepository DispenserRepository)
 
     private UnitResult<Error> ValidateStatusRequest(Guid id, SetDispenserStatusRequest data)
     {
-        return DispenserRepository.LastEvent(id).Ensure(evt =>
+        return DispenserRepository.LastEvent(id).Bind(evt =>
         {
-            if (evt.HasNoValue) return true;
-            if (evt.Value is CloseTapEvent && data.Status == DispenserStatus.close) return false;
-            if (evt.Value is OpenTapEvent && data.Status == DispenserStatus.open) return false;
-            return true;
-        }, new Conflict());
+            if (evt.HasNoValue && data.Status == DispenserStatus.close) return new Conflict();
+            if (evt.HasValue && evt.Value is CloseTapEvent && data.Status == DispenserStatus.close) return new Conflict();
+            if (evt.HasValue && evt.Value is OpenTapEvent && data.Status == DispenserStatus.open) return new Conflict();
+            return UnitResult.Success<Error>();
+        });
     }
 
     public UnitResult<Error> OpenTap(Guid id, DateTime at)
