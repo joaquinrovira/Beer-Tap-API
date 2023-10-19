@@ -7,6 +7,7 @@ using CSharpFunctionalExtensions;
 [Service]
 public record class DispenserService(IDispenserRepository DispenserRepository)
 {
+    public const decimal PRICE = 12.25M;
 
     public Result<Dispenser, Error> Register(RegisterDispenserRequest request)
     {
@@ -33,7 +34,7 @@ public record class DispenserService(IDispenserRepository DispenserRepository)
         });
     }
 
-    public UnitResult<Error> ValidateStatusRequest(Guid id, SetDispenserStatusRequest data)
+    private UnitResult<Error> ValidateStatusRequest(Guid id, SetDispenserStatusRequest data)
     {
         return DispenserRepository.LastEvent(id).Ensure(evt =>
         {
@@ -41,7 +42,7 @@ public record class DispenserService(IDispenserRepository DispenserRepository)
             if (evt.Value is CloseTapEvent && data.Status == DispenserStatus.close) return false;
             if (evt.Value is OpenTapEvent && data.Status == DispenserStatus.open) return false;
             return true;
-        }, new Conflict($"Dispenser is already opened/closed"));
+        }, new Conflict());
     }
 
     public UnitResult<Error> OpenTap(Guid id, DateTime at)
@@ -55,4 +56,63 @@ public record class DispenserService(IDispenserRepository DispenserRepository)
         return DispenserRepository.PublishEvent(id, evt);
     }
 
+    public Result<DispenserUsageReportResponse, Error> UsageReport(Guid id)
+    {
+        return DispenserRepository
+            .Get(id)
+            .Bind(d =>
+                DispenserRepository
+                .UsageReportByDate(id)
+                .Map(e => new { Dispenser = d, Events = e })
+            )
+            .Map(v => Usages(v.Dispenser, v.Events));
+    }
+
+    private DispenserUsageReportResponse Usages(Dispenser d, IEnumerable<IDispenserEvent> events)
+    {
+        var report = new List<DispenserUsageReportResponseItem>();
+        var total = 0M;
+        var item = Maybe<UsageReportItem>.None;
+        foreach (var evt in events)
+        {
+            if (item.HasNoValue && evt is OpenTapEvent) item = new UsageReportItem(d, evt.At());
+            if (item.HasValue && evt is CloseTapEvent)
+            {
+                item.Value.SetClosingTime(evt.At());
+                report.Add(item.Value.Commit());
+                total += item.Value.TotalSpent;
+                item = Maybe.None;
+            }
+        }
+        if (item.HasValue)
+        {
+            report.Add(item.Value.Commit());
+            total += item.Value.TotalSpent;
+        }
+        return new(total, report);
+    }
+
+}
+
+public class UsageReportItem
+{
+    Dispenser Dispenser;
+    public DateTime OpenedAt { get; }
+    public DateTime ClosedAt => MaybeClosedAt.GetValueOrDefault(ImplicitClosedAt);
+    public decimal FlowVolume => (decimal)(OpenedAt - ClosedAt).TotalSeconds * (decimal)Dispenser.FlowVolume;
+    public decimal TotalSpent => FlowVolume * DispenserService.PRICE;
+    Maybe<DateTime> MaybeClosedAt = Maybe.None;
+    DateTime ImplicitClosedAt = DateTime.Now;
+
+    public UsageReportItem(Dispenser dispenser, DateTime openedAt)
+    {
+        Dispenser = dispenser;
+        OpenedAt = openedAt;
+    }
+    public void SetClosingTime(DateTime t)
+    {
+        MaybeClosedAt = t;
+    }
+
+    public DispenserUsageReportResponseItem Commit() => new(OpenedAt, ClosedAt, FlowVolume, TotalSpent);
 }

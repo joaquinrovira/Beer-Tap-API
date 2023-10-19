@@ -1,7 +1,7 @@
 namespace BeerTapAPI.Dtos;
 
 public record DispenserUsageReportResponse(
-    float Amount,
+    decimal Amount,
     IEnumerable<DispenserUsageReportResponseItem> Usages
 )
 { }
@@ -9,7 +9,7 @@ public record DispenserUsageReportResponse(
 public record DispenserUsageReportResponseItem(
     DateTime OpenedAt,
     DateTime? ClosedAt,
-    float FlowVolume,
-    float TotalSpent
+    decimal FlowVolume,
+    decimal TotalSpent
 )
 { }

@@ -4,9 +4,11 @@ using CSharpFunctionalExtensions;
 
 public interface IDispenserRepository
 {
+    Result<Dispenser, Error> Get(Guid id);
     UnitResult<Error> Register(Dispenser d);
     UnitResult<Error> PublishEvent(Guid id, IDispenserEvent e);
     Result<Maybe<IDispenserEvent>, Error> LastEvent(Guid id);
+    Result<IEnumerable<IDispenserEvent>, Error> UsageReportByDate(Guid id);
 }
 
 [Service]
@@ -32,9 +34,9 @@ public record class MemoryDispenserRepository() : IDispenserRepository
 
     public Result<Maybe<IDispenserEvent>, Error> LastEvent(Guid id)
     {
-        return Get(id).Map(_ =>
+        return Get(id).Map(d =>
         {
-            var set = Events[id];
+            var set = Events[d.Id];
             if (set.Count == 0) return Maybe.None;
             return Maybe.From(Events[id].Last());
         });
@@ -42,10 +44,15 @@ public record class MemoryDispenserRepository() : IDispenserRepository
 
     public UnitResult<Error> PublishEvent(Guid id, IDispenserEvent e)
     {
-        return Get(id).Bind(_ =>
+        return Get(id).Bind(d =>
         {
-            Events[id].Add(e);
+            Events[d.Id].Add(e);
             return UnitResult.Success<Error>();
         });
+    }
+
+    public Result<IEnumerable<IDispenserEvent>, Error> UsageReportByDate(Guid id)
+    {
+        return Get(id).Map(d => Events[d.Id].AsEnumerable());
     }
 }

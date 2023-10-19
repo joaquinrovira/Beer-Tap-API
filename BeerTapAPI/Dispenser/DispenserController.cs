@@ -30,13 +30,16 @@ public class DispenserController : ControllerBase
     {
         var result = DispenserService.SetStatus(id, data);
         if (result.IsSuccess) return Accepted(result.Value);
-        if (result.Error is Errors.Conflict c) return Conflict(c.Message);
+        if (result.Error is Errors.Conflict c) return Conflict("Dispenser is already opened/closed");
         throw result.Error;
     }
 
     [HttpGet("{id}/spending")]
-    public IActionResult UsageReport()
+    public IActionResult UsageReport([FromRoute] Guid id)
     {
-        return NotFound();
+        var result = DispenserService.UsageReport(id);
+        if (result.IsSuccess) return Ok(result.Value);
+        if (result.Error is Errors.NotFound c) return NotFound("Requested dispenser does not exist");
+        throw result.Error;
     }
 }

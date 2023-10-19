@@ -9,5 +9,9 @@ public class Error : Exception
 
 public class Conflict : Error
 {
-    public Conflict(string? msg) : base(msg) { }
+    public Conflict(string? msg = null) : base(msg) { }
+}
+public class NotFound : Error
+{
+    public NotFound(string? msg = null) : base(msg) { }
 }
