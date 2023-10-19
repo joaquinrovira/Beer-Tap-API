@@ -46,8 +46,8 @@ public record class MemoryDispenserRepository() : IDispenserRepository
     {
         return Get(id).Bind(d =>
         {
-            Events[d.Id].Add(e);
-            return UnitResult.Success<Error>();
+            if (Events[d.Id].Add(e)) return UnitResult.Success<Error>();
+            else return new Error("Duplicated event time!");
         });
     }
 
